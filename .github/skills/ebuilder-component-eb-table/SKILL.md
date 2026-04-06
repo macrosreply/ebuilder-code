@@ -1,6 +1,6 @@
 ---
 name: ebuilder-component-eb-table
-description: "Deep component skill for eb-table. USE FOR: prop-safe YAML generation, nested prop authoring, and event wiring for eb-table in eBuilder component YAML."
+description: 'Deep component skill for eb-table. USE FOR: prop-safe YAML generation, nested prop authoring, and event wiring for eb-table in eBuilder component YAML.'
 ---
 
 # eb-table Component Skill

@@ -1,0 +1,22 @@
+{
+  "name": "@macros-reply/ebuilder-code",
+  "version": "1.0.0",
+  "description": "An opinionated GitHub Copilot customization pack for teams building on the eBuilder low-code framework.",
+  "main": "index.js",
+  "scripts": {
+    "format": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macrosreply/ebuilder-code.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/macrosreply/ebuilder-code/issues"
+  },
+  "homepage": "https://github.com/macrosreply/ebuilder-code#readme",
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  }
+}
