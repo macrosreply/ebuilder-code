@@ -1,6 +1,6 @@
 ---
 name: ebuilder-component-eb-table
-description: 'Deep component skill for eb-table. USE FOR: prop-safe YAML generation, nested prop authoring, and event wiring for eb-table in eBuilder component YAML.'
+description: "Deep component skill for eb-table. USE FOR: prop-safe YAML generation, nested prop authoring, and event wiring for eb-table in eBuilder component YAML."
 ---
 
 # eb-table Component Skill
@@ -13,7 +13,7 @@ Use `eb-table` to build a table displays a collection of structured data with so
 
 | name                      | type                                                                                                                                                                                                                                                                                          | description                                                                                                                                                                                                            |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| autoHeight                | { minHeight: number; }                                                                                                                                                                                                                                                                        | Config table take the full height of its parent. We recommend to make its parent `flex: 1` or `height: `. This prop is disabled if `preferHeight` is set.                                                              |
+| autoHeight                | { minHeight: number; }                                                                                                                                                                                                                                                                        | Config table take the full height of its parent. We recommend to make its parent `flex: 1` or `height: fixed_value`. This prop is disabled if `preferHeight` is set.                                                   |
 | cache                     | EBCacheOptions                                                                                                                                                                                                                                                                                | Specifies cache.                                                                                                                                                                                                       |
 | cols                      | EBTableColProps[]                                                                                                                                                                                                                                                                             | Specifies cols.                                                                                                                                                                                                        |
 | columnMinWidth            | string \| number                                                                                                                                                                                                                                                                              | Specifies column min width.                                                                                                                                                                                            |
@@ -203,6 +203,34 @@ Use `eb-table` to build a table displays a collection of structured data with so
 | subItems               | EBContextMenuItemConfig [] \| (($event: { record: unknown; records: unknown; all: unknown; }) => EBContextMenuItemConfig [] \| Promise ) | No official description found; inferred from type declaration. |
 | ebTableMenuItemHide    | EBContextDataChecker                                                                                                                     | Specifies eb table menu item hide.                             |
 | ebTableMenuItemDisable | EBContextDataChecker                                                                                                                     | Specifies eb table menu item disable.                          |
+
+### EBTableFilterConfig
+
+| name                      | type                                | description                                                     |
+| ------------------------- | ----------------------------------- | --------------------------------------------------------------- |
+| options                   | Record<string \| number, string>    | Config for filter type options.                                 |
+| type                      | 'select' or 'radio'                 | Specifies type.                                                 |
+| selectSearch              | EBTableFilterTypeSelectSearchConfig | Config for filter type select-search.                           |
+| dataIndex                 | string                              | Use this prop to forward filter values to other field in query. |
+| distinct                  | boolean                             | Whether distinct.                                               |
+| distinctAdditionalFilters | QueryFilter[]                       | Specifies distinct additional filters.                          |
+| dataIndexType             | EBColumnType                        | Use this prop to parse selected filter values to correct type.  |
+| supportOps                | QueryFilterOperator[]               | Specifies support ops.                                          |
+
+### EBTableFilterTypeSelectSearchConfig
+
+| name                  | type                                    | description                                          |
+| --------------------- | --------------------------------------- | ---------------------------------------------------- |
+| query                 | QueryConfig                             | Specifies query.                                     |
+| label                 | string \| (($entry: unknown) => string) | Specifies label.                                     |
+| value                 | string                                  | Specifies value.                                     |
+| searchOnField         | string                                  | Specifies search on field.                           |
+| loadAll               | boolean                                 | This prop should not be used with searchMode: param. |
+| searchMode            | 'filter' \| 'param'                     | Specifies search mode.                               |
+| filterOperator        | QueryFilterOperator                     | Specifies filter operator.                           |
+| numberOfSearchResults | number                                  | Specifies number of search results.                  |
+| minSearchTermLength   | number                                  | Specifies min search term length.                    |
+| showRefresh           | boolean                                 | Whether show refresh.                                |
 
 ### EBTableRecord
 

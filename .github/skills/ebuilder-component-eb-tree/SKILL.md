@@ -1,6 +1,6 @@
 ---
 name: ebuilder-component-eb-tree
-description: 'Deep component skill for eb-tree. USE FOR: prop-safe YAML generation, nested prop authoring, and event wiring for eb-tree in eBuilder component YAML.'
+description: "Deep component skill for eb-tree. USE FOR: prop-safe YAML generation, nested prop authoring, and event wiring for eb-tree in eBuilder component YAML."
 ---
 
 # eb-tree Component Skill
@@ -13,7 +13,7 @@ Use `eb-tree` for showing parent-children data in tree view style Tree with init
 
 | name             | type                                                                                                                                       | description                                                                                                                                                                |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| autoHeight       | { minHeight: number; offset?: number; }                                                                                                    | Config eb-tree take the full height of its parent. We recommend to make its parent `flex: 1` or `height: `. This prop is disabled if `height` is set.                      |
+| autoHeight       | { minHeight: number; offset?: number; }                                                                                                    | Config eb-tree take the full height of its parent. We recommend to make its parent `flex: 1` or `height: fixed_value`. This prop is disabled if `height` is set.           |
 | contextMenuItems | EBTreeMenuItemConfig[]                                                                                                                     | Specifies context menu items.                                                                                                                                              |
 | data             | EBTreeItem[]                                                                                                                               | Fixed data to show on tree                                                                                                                                                 |
 | ebTreeDataSource | ($treeNode: EventDataNode, $searchTerm: string) => ({ type: "query"; } & QueryConfig) \| { type: "task"; name: string; params?: Record ; } | Function to get eb-query or eb-task to get data                                                                                                                            |
@@ -112,7 +112,7 @@ Use `eb-tree` for showing parent-children data in tree view style Tree with init
       select:
         name: eb-router-push
         params:
-          path: '${{ `/explorer/folder/${$event.item.key}` }}'
+          path: "${{ `/explorer/folder/${$event.item.key}` }}"
   children:
     - name: div
       slot: title
@@ -142,7 +142,7 @@ Use `eb-tree` for showing parent-children data in tree view style Tree with init
       select:
         name: eb-router-push
         params:
-          path: '${{ `/explorer/folder/${$event.item.key}` }}'
+          path: "${{ `/explorer/folder/${$event.item.key}` }}"
   children:
     - name: div
       slot: title
@@ -173,7 +173,7 @@ Use `eb-tree` for showing parent-children data in tree view style Tree with init
         emit:
           name: eb-router-push
           params:
-            path: '${{ `/explorer/folder/${$event.item.key}` }}'
+            path: "${{ `/explorer/folder/${$event.item.key}` }}"
     search:
       enabled: true
       propToSearch: title
@@ -218,7 +218,7 @@ Use `eb-tree` for showing parent-children data in tree view style Tree with init
         emit:
           name: eb-router-push
           params:
-            path: '${{ `/explorer/folder/${$event.item.key}` }}'
+            path: "${{ `/explorer/folder/${$event.item.key}` }}"
   children:
     - name: div
       slot: title
@@ -291,7 +291,7 @@ Use `eb-tree` for showing parent-children data in tree view style Tree with init
         emit:
           name: eb-router-push
           params:
-            path: '${{ `/explorer/folder/${$event.item.key}` }}'
+            path: "${{ `/explorer/folder/${$event.item.key}` }}"
   children:
     - name: div
       slot: title
@@ -314,7 +314,7 @@ Use `eb-tree` for showing parent-children data in tree view style Tree with init
           emit:
             name: sb-tree-select
             params:
-              key: '1'
+              key: "1"
 - name: eb-tree
   props:
     loadData: |
@@ -342,7 +342,7 @@ Use `eb-tree` for showing parent-children data in tree view style Tree with init
         emit:
           name: eb-router-push
           params:
-            path: '${{ `/explorer/folder/${$event.item.key}` }}'
+            path: "${{ `/explorer/folder/${$event.item.key}` }}"
   children:
     - name: div
       slot: title
