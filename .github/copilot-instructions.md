@@ -98,6 +98,7 @@ When specialized guidance is required, prefer focused customizations:
   - `ebuilder-yaml-schema-guard`
   - `ebuilder-resource-safe-patterns`
   - `ebuilder-task-safe-patterns`
+  - `ebuilder-library-task-csharp-patterns`
   - `ebuilder-sql-safe-patterns`
   - `ebuilder-locale-i18n-enforcer`
   - `ebuilder-component-yaml-structure`

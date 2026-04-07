@@ -1,6 +1,6 @@
 ---
 name: ebuilder-task-safe-patterns
-description: 'Generation playbook for configs/task.*.yml in eBuilder. USE FOR: create task-* definitions, select correct task type (library/forward-task/upload-files/schedule/webhook/publish-signal), enforce authorize and upload constraints, validate activator and forwardTo blocks, and align task YAML with task docs, schema, and dll handlers. DO NOT USE FOR: SQL definitions in configs/sql.*.yml or standalone C# implementation without task config changes.'
+description: 'Generation playbook for configs/task.*.yml in eBuilder. USE FOR: create task-* definitions, select correct task type (library/forward-task/upload-files/schedule/webhook/publish-signal), enforce authorize and upload constraints, validate activator and forwardTo blocks, and align task YAML with task docs and schema. DO NOT USE FOR: SQL definitions in configs/sql.*.yml or C# library handler implementation (use ebuilder-library-task-csharp-patterns skill).'
 ---
 
 # eBuilder Task Generation Playbook
@@ -11,7 +11,7 @@ Use this skill when generating or reviewing `configs/task.*.yml` so output is:
 
 - aligned with `ebuilder-docs/Task.md`
 - compatible with `ebuilder.configs.task.schema.json`
-- consistent with this repository's current task and DLL conventions
+- consistent with this repository's current task conventions
 
 ## Scope
 
@@ -221,181 +221,18 @@ tasks:
       class: eClient.Tasks.ExampleLibraryTask
 ```
 
-## `library` Task Implementation Patterns (C#)
+## `library` Tasks: Scope Boundary
 
-Use `library` when YAML/task composition is not enough and you need custom C# business flow.
+This skill validates task YAML shape and integration contracts only:
 
-### Minimal Handler Sample
+- `type: library`
+- `activator.assembly`
+- `activator.class`
 
-```cs
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using EBuilder.Core.Models;
-using EBuilder.Core.Providers;
-using Microsoft.AspNetCore.Http;
+For C# handler implementation guidance (TaskLibraryHandler patterns, input parsing/validation, transaction handling, singleton services, and handler result semantics), use:
 
-namespace Task.Project.Namespace;
-
-public class TaskName : TaskLibraryHandler
-{
-    public TaskName()
-        : base() { }
-
-    public override Task<TaskLibraryHandlerResult> Execute(object parameters, List<IFormFile> files)
-    {
-        return Task.FromResult(new TaskLibraryHandlerResult
-        {
-            Body = new { data = "data in json response" },
-            StatusCode = HttpStatusCode.OK
-        });
-    }
-}
-```
-
-### Input Parsing And Validation Sample
-
-Prefer typed input parsing with `ParseInputParams<T>(parameters)` and validation attributes.
-
-```cs
-using EBuilder.Core.Validation;
-
-public class InputParams
-{
-    [EBInputParamProp("nonNullableString")]
-    [EBInputParamNullable(false)]
-    [EBInputParamRequired]
-    public string NonNullableString { get; set; }
-
-    [EBInputParamProp("nullableInt")]
-    public int? NullableInt { get; set; }
-
-    [EBInputParamProp("dateOnly")]
-    [EBInputParamDateTime(dateOnly: true, useLocalTimeZone: true)]
-    public DateTime? DateOnly { get; set; }
-}
-
-public override async Task<TaskLibraryHandlerResult> Execute(object parameters, List<IFormFile> files)
-{
-    var input = ParseInputParams<InputParams>(parameters);
-
-    return new TaskLibraryHandlerResult
-    {
-        Body = new { input.NonNullableString, input.NullableInt, input.DateOnly }
-    };
-}
-```
-
-### Transaction Pattern In `library` Tasks
-
-Use eBuilder datasource helpers and provider APIs for transaction-safe SQL work.
-
-```cs
-var (connection, transaction, dataSourceConfig, queryBuilderProvider) = ConnectDataSource();
-var databaseProvider = GetDatabaseProvider(dataSourceConfig.Type);
-
-using (connection)
-using (transaction)
-{
-    try
-    {
-        var rows = await databaseProvider.Query<MyRow>(
-            AppContext,
-            dataSourceConfig,
-            connection,
-            transaction,
-            queryBuilderProvider,
-            "SELECT id AS \"id\" FROM my_table WHERE id = ${id}",
-            new Dictionary<string, object> { ["id"] = 1 }
-        );
-
-        transaction.Commit();
-        return new TaskLibraryHandlerResult { Body = new { rows } };
-    }
-    catch
-    {
-        transaction.Rollback();
-        throw;
-    }
-}
-```
-
-### Preferred Singleton Service Pattern (`EBSingletonService`)
-
-Current preferred approach for reusable integrations is registering singleton services in DLL projects with `EBSingletonService` and consuming them from tasks.
-
-#### 1. Define And Register Singleton Service
-
-```cs
-using EBuilder.Core.Attributes;
-using EBuilder.Core.Services;
-using Microsoft.Extensions.Logging;
-
-public interface IDocumentIntelligenceService
-{
-    Task<string> AnalyzeAsync(string content, CancellationToken cancellationToken = default);
-}
-
-[EBSingletonService<IDocumentIntelligenceService, DocumentIntelligenceService>()]
-public class DocumentIntelligenceService : IDocumentIntelligenceService, IDisposable
-{
-    private readonly IAppConfigsService appConfigsService;
-    private readonly IDataCachingService dataCachingService;
-    private readonly ILogger<IDocumentIntelligenceService> logger;
-
-    public DocumentIntelligenceService(
-        IAppConfigsService appConfigsService,
-        IDataCachingService dataCachingService,
-        ILogger<IDocumentIntelligenceService> logger
-    )
-    {
-        this.appConfigsService = appConfigsService;
-        this.dataCachingService = dataCachingService;
-        this.logger = logger;
-    }
-
-    public Task<string> AnalyzeAsync(string content, CancellationToken cancellationToken = default)
-    {
-        logger.LogInformation("Analyzing content with singleton service");
-        return Task.FromResult(content);
-    }
-
-    public void Dispose() { }
-}
-```
-
-#### 2. Consume Singleton In `TaskLibraryHandler`
-
-```cs
-public override async Task<TaskLibraryHandlerResult> Execute(object parameters, List<IFormFile> files)
-{
-    var documentIntelligenceService = GetSingletonService<IDocumentIntelligenceService>();
-    var result = await documentIntelligenceService.AnalyzeAsync("sample");
-
-    return new TaskLibraryHandlerResult
-    {
-        Body = new { result }
-    };
-}
-```
-
-#### 3. Consume Singleton In Other Contexts (example: health checks)
-
-```cs
-var documentIntelligenceService = dllService.GetEBSingletonService<IDocumentIntelligenceService>(EB.App.Name);
-```
-
-Notes:
-
-- eBuilder scans loaded DLLs for `EBSingletonService` attributes and registers them in service collection.
-- Constructor injection is supported for engine services (`ITaskService`, `IDatabaseService`, `ITemplateService`, `IDataCachingService`, etc.).
-- Prefer singleton services for external API clients, expensive SDK clients, and shared cache-backed adapters.
-
-### Handler Result Semantics
-
-- Use `TaskLibraryHandlerResult.Body` for normal JSON response payload (`result.data`).
-- Use `ErrorMessage` with appropriate `StatusCode` for predictable frontend error handling.
-- For file responses, use stream fields (`BodyStreamMemory`, `BodyStreamFilePath`, `BodyStream`) according to download behavior needs.
+- agent: `.github/agents/ebuilder-dll-integration.agent.md`
+- skill: `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md`
 
 ### Forward Task
 
@@ -431,15 +268,14 @@ tasks:
           changedBy: ${$EB_CONTEXT(user.id)}
 ```
 
-## DLL Alignment Checklist (for `library`)
+## DLL Alignment Checklist (for `library` mapping)
 
 Before finalizing a `library` task:
 
 1. Confirm `activator.assembly` points to a real DLL project path under `dll/`.
 2. Confirm `activator.class` namespace/class exists in source.
-3. Prefer handler classes derived from `TaskLibraryHandler`.
-4. If transaction participation is needed, align with handlers implementing `ITaskLibraryTransactionHandler`.
-5. Keep task parameter names stable with handler `ParseInputParams<T>` mappings.
+3. Keep task parameter naming stable with handler input contract.
+4. Delegate C# handler authoring details to `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md`.
 
 ## Schema Guardrails
 
