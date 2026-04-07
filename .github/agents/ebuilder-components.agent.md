@@ -64,6 +64,12 @@ When generating or reviewing component YAML, apply:
 - `ebuilder-yaml-schema-guard`
 - `ebuilder-locale-i18n-enforcer`
 
+Component-specific deep routing:
+
+- If the target includes a concrete `eb-*` component, load the matching deep skill `ebuilder-component-<component-name>` first (for example `eb-button` -> `ebuilder-component-eb-button`).
+- Keep `ebuilder-component-yaml-structure` and `ebuilder-yaml-schema-guard` loaded alongside the deep component skill for schema-safe output.
+- For `eb-vnode` or `eb-vnode-renderer`, use `ebuilder-component-eb-vnode-renderer`.
+
 ## Output Checklist
 
 - UI event wiring aligns with existing task/query names.

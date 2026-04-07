@@ -106,6 +106,12 @@ When specialized guidance is required, prefer focused customizations:
   - `ebuilder-shared-form-fields`
   - `ebuilder-emit-event-patterns`
 
+Component deep-skill routing (explicit):
+
+- If the user request targets a specific `eb-*` component, load the matching skill at `.github/skills/ebuilder-component-<component-name>/SKILL.md` when it exists.
+- Example mappings: `eb-button` -> `ebuilder-component-eb-button`, `eb-table` -> `ebuilder-component-eb-table`, `eb-form` -> `ebuilder-component-eb-form`.
+- If no component-specific skill exists, fall back to `ebuilder-component-yaml-structure` and `ebuilder-yaml-schema-guard`.
+
 ## 8. Communication Style
 
 - Be concise.
