@@ -103,6 +103,13 @@ Do not place business SQL/task logic directly in `app.yml`; only event wiring.
 - Keep inline handlers short; move complex logic to `externals/`.
 - Access context safely: `$rootProps`, `$rootVars`, `$rootStore`, `$rootMemo`, `$route`, `$event`, `$ctx`.
 
+### `$ctx` Parent Chain Rule (Important)
+
+- Use `$ctx.$parent` to access the nearest closed parent context (including parent props/context data).
+- Keep chaining with `.$parent` to walk up higher levels (for example: `$ctx.$parent.$parent`).
+- If `$ctx` is used inside a node `children` block, add one extra `.$parent` level compared with the same expression outside `children`.
+- Verify depth by checking the real node nesting and adjust parent chain explicitly instead of guessing.
+
 ## Common Mistakes To Avoid
 
 - Using unsupported root keys.
