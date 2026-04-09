@@ -233,6 +233,7 @@ For C# handler implementation guidance (TaskLibraryHandler patterns, input parsi
 
 - agent: `.github/agents/ebuilder-dll-integration.agent.md`
 - skill: `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md`
+- skill: `.github/skills/ebuilder-singleton-service-recommendation-patterns/SKILL.md` (for `EBSingletonService` recommendation and service boundary patterns)
 
 ### Forward Task
 
@@ -275,7 +276,8 @@ Before finalizing a `library` task:
 1. Confirm `activator.assembly` points to a real DLL project path under `dll/`.
 2. Confirm `activator.class` namespace/class exists in source.
 3. Keep task parameter naming stable with handler input contract.
-4. Delegate C# handler authoring details to `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md`.
+4. Delegate standard handler authoring to `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md`.
+5. Delegate singleton-service recommendation patterns to `.github/skills/ebuilder-singleton-service-recommendation-patterns/SKILL.md`.
 
 ## Schema Guardrails
 

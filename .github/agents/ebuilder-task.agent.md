@@ -11,7 +11,10 @@ Design and update eBuilder task definitions in `configs/task.*.yml` with correct
 
 Primary execution guide: follow `.github/skills/ebuilder-task-safe-patterns/SKILL.md` for generation and validation.
 
-For deep `library` task C# handler implementation, route to agent `.github/agents/ebuilder-dll-integration.agent.md` and skill `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md`.
+For deep `library` task C# work, route to agent `.github/agents/ebuilder-dll-integration.agent.md`.
+
+- Use `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md` for standard handler implementation.
+- Use `.github/skills/ebuilder-singleton-service-recommendation-patterns/SKILL.md` when recommending `EBSingletonService` business-logic extraction.
 
 ## Owns
 

@@ -9,7 +9,10 @@ description: 'Use when implementing or refactoring C# handlers for library tasks
 
 Guide C# implementation and integration of `library` task handlers in `dll/` while preserving clear framework boundaries.
 
-Primary execution guide: follow `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md`.
+Primary execution guide:
+
+- `.github/skills/ebuilder-library-task-csharp-patterns/SKILL.md` for standard `TaskLibraryHandler` implementation.
+- `.github/skills/ebuilder-singleton-service-recommendation-patterns/SKILL.md` for recommending and designing `EBSingletonService` business-logic extraction.
 
 ## Owns
 

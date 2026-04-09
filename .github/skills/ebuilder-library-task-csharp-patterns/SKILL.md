@@ -1,6 +1,6 @@
 ---
 name: ebuilder-library-task-csharp-patterns
-description: 'C# implementation playbook for eBuilder library task handlers in dll/. USE FOR: implement or refactor TaskLibraryHandler classes, parse input with ParseInputParams<T>, handle transactions, use EBSingletonService patterns, and shape TaskLibraryHandlerResult responses. DO NOT USE FOR: task YAML schema authoring in configs/task.*.yml, SQL YAML in configs/sql.*.yml, or UI component work.'
+description: 'C# implementation playbook for standard eBuilder library task handlers in dll/. USE FOR: implement or refactor TaskLibraryHandler classes, parse input with ParseInputParams<T>, handle transactions, define query result DTOs, and shape TaskLibraryHandlerResult responses. DO NOT USE FOR: task YAML schema authoring in configs/task.*.yml, SQL YAML in configs/sql.*.yml, UI component work, or singleton-service recommendation patterns (use ebuilder-singleton-service-recommendation-patterns).'
 ---
 
 # eBuilder Library Task C# Playbook
@@ -14,7 +14,6 @@ This skill covers:
 - handler class structure
 - input parsing and validation
 - transaction-safe data access patterns
-- singleton service registration/consumption
 - handler response semantics
 
 ## Scope
@@ -85,13 +84,14 @@ public override async Task<TaskLibraryHandlerResult> Execute(object parameters, 
 }
 ```
 
-## Transaction Pattern
+## Define EBQueryResultType for query in C\#
 
-Use eBuilder datasource helpers and provider APIs for transaction-safe SQL work.
-Use `databaseProvider` to work with eb-sql commands (support all $EB\__ symbols) directly and use `DatabaseService` to work with defined eb-query and eb-mutation which are defined in `configs/sql._.yml` files.
-For querying objects, remember to use EBQueryResultType and EBColumnName attributes to define the shape of the result set.
+When using `databaseProvider.Query<ReturnObjectClass>` or `DatabaseService.Query<ReturnObjectClass>`, we should always create DTO class for the result following this pattern
 
 ```cs
+
+namespace base_namespace.Models
+
 [EBQueryResultType]
 public class TdTodoDto
 {
@@ -104,9 +104,17 @@ public class TdTodoDto
     [EBColumnName("maxRemain")]
     public int? MaxRemain { get; set; }
 }
+```
 
-...
+For querying objects DTO, remember to use EBQueryResultType and EBColumnName attributes to define the shape of the result set,
+also the ...Dto classes should be kept in a separate .cs files in /Models directory.
 
+## Transaction Pattern
+
+Use eBuilder datasource helpers and provider APIs for transaction-safe SQL work.
+Use `databaseProvider` to work with eb-sql commands (support all $EB\__ symbols) directly and use `DatabaseService` to work with defined eb-query and eb-mutation which are defined in `configs/sql._.yml` files.
+
+```cs
 var (connection, transaction, dataSourceConfig, queryBuilderProvider) = ConnectDataSource();
 var databaseProvider = GetDatabaseProvider(dataSourceConfig.Type);
 
@@ -160,7 +168,6 @@ using (transaction)
             transaction,
             queryBuilderProvider
         );
-
 
         // mutation with eb-sql
         var newCatResults = await databaseProvider.ExecuteSQLStep(
@@ -254,78 +261,11 @@ using (transaction)
 }
 ```
 
-## Singleton Service Pattern
+## Related Skill
 
-Preferred approach for reusable integrations is registering singleton services in DLL projects with `EBSingletonService` and consuming them from handlers.
+For recommendation patterns that move business logic from handlers into `EBSingletonService` classes, use:
 
-### 1. Define And Register Singleton Service
-
-```cs
-using EBuilder.Core.Attributes;
-using EBuilder.Core.Services;
-using Microsoft.Extensions.Logging;
-
-public interface IDocumentIntelligenceService
-{
-    Task<string> AnalyzeAsync(string content, CancellationToken cancellationToken = default);
-}
-
-[EBSingletonService<IDocumentIntelligenceService, DocumentIntelligenceService>()]
-public class DocumentIntelligenceService : IDocumentIntelligenceService, IDisposable
-{
-    private readonly IAppConfigsService appConfigsService;
-    private readonly IDataCachingService dataCachingService;
-    private readonly ILogger<IDocumentIntelligenceService> logger;
-
-    public DocumentIntelligenceService(
-        IAppConfigsService appConfigsService,
-        IDataCachingService dataCachingService,
-        ILogger<IDocumentIntelligenceService> logger
-    )
-    {
-        this.appConfigsService = appConfigsService;
-        this.dataCachingService = dataCachingService;
-        this.logger = logger;
-    }
-
-    public Task<string> AnalyzeAsync(string content, CancellationToken cancellationToken = default)
-    {
-        var maxTokens = appConfigsService.ConstantConfigs[App.Name].GetInt(EB.Constant.AI.DEFAULT_MAX_TOKENS);
-
-        logger.LogInformation("Analyzing content with singleton service");
-        return Task.FromResult(content);
-    }
-
-    public void Dispose() { }
-}
-```
-
-### 2. Consume Singleton In TaskLibraryHandler
-
-```cs
-public override async Task<TaskLibraryHandlerResult> Execute(object parameters, List<IFormFile> files)
-{
-    var documentIntelligenceService = GetSingletonService<IDocumentIntelligenceService>();
-    var result = await documentIntelligenceService.AnalyzeAsync("sample");
-
-    return new TaskLibraryHandlerResult
-    {
-        Body = new { result }
-    };
-}
-```
-
-### 3. Consume Singleton In Other Contexts
-
-```cs
-var documentIntelligenceService = dllService.GetEBSingletonService<IDocumentIntelligenceService>(EB.App.Name);
-```
-
-Notes:
-
-- eBuilder scans loaded DLLs for `EBSingletonService` attributes and registers them in service collection.
-- Constructor injection is supported for engine services (`ITaskService`, `IDatabaseService`, `ITemplateService`, `IDataCachingService`, `IAppConfigsService`, `ILogger`, etc.).
-- Prefer singleton services for external API clients, expensive SDK clients, and shared cache-backed adapters.
+- `.github/skills/ebuilder-singleton-service-recommendation-patterns/SKILL.md`
 
 ## Handler Result Semantics
 
@@ -338,5 +278,5 @@ Notes:
 - Task `activator.class` maps to a real handler class in `dll/`.
 - Input mapping and validation attributes match task parameter names.
 - Transaction boundaries are explicit where writes occur.
-- Shared integrations use `EBSingletonService` when suitable.
+- Handler code focuses on orchestration and response mapping.
 - Handler returns predictable status and payload/error semantics.

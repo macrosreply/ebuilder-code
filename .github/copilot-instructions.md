@@ -99,6 +99,7 @@ When specialized guidance is required, prefer focused customizations:
   - `ebuilder-resource-safe-patterns`
   - `ebuilder-task-safe-patterns`
   - `ebuilder-library-task-csharp-patterns`
+  - `ebuilder-singleton-service-recommendation-patterns`
   - `ebuilder-sql-safe-patterns`
   - `ebuilder-locale-i18n-enforcer`
   - `ebuilder-component-yaml-structure`
